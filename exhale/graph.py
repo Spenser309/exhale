@@ -195,6 +195,7 @@ class ExhaleNode(object):
             self.return_type = None # string (void, int, etc)
             self.parameters = [] # list of strings: ["int", "int"] for foo(int x, int y)
             self.template = None # list of strings
+            self.argsstring = ""
 
     def __lt__(self, other):
         '''
@@ -244,9 +245,10 @@ class ExhaleNode(object):
         """
         if self.kind == "function":
             # TODO: breathe bug with templates and overloads, don't know what to do...
-            return "{name}({parameters})".format(
+            return "{name}{argsstring}".format(
                 name=self.name,
-                parameters=", ".join(self.parameters)
+                argsstring=self.argsstring
+#                parameters=", ".join(self.parameters)
             )
 
         return self.name
@@ -1990,6 +1992,14 @@ class ExhaleRoot(object):
                 if not func:
                     continue ############flake8efphase: TODO: error, log?
                 functions.remove(func)
+
+                func.argsstring =  memberdef.find("argsstring", recursive=False).text.replace(
+                    "&lt;", "<"
+                  ).replace(
+                    "&gt;", ">"
+                  ).replace(
+                    "&amp;", "&"
+                  )
 
                 # At last, we can actually parse the function signature
                 # 1. The function return type.
